@@ -166,6 +166,8 @@ var _testModeAPI = _interopRequireDefault(__webpack_require__(9));
 
 var _OutboundLink = _interopRequireDefault(__webpack_require__(10));
 
+var _pageViewOptions2 = _interopRequireDefault(__webpack_require__(13));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
@@ -352,35 +354,28 @@ function send(fieldObject, trackerNames) {
 /**
  * pageview:
  * Basic GA pageview tracking
- * @param  {String} path - the current page page e.g. '/about'
- * @param {Array} trackerNames - (optional) a list of extra trackers to run the command on
- * @param {String} title - (optional) the page title e. g. 'My Website'
+ * @param  {String|Object} config - the current page page e.g. '/about'
+ * @param {Array} [trackerNames] - (optional) a list of extra trackers to run the command on
+ * @param {String} [title] - (optional) the page title e. g. 'My Website'
  */
 
 
-function pageview(rawPath, trackerNames, title) {
-  if (!rawPath) {
-    (0, _warn.default)('path is required in .pageview()');
+function pageview(config, trackerNames, title) {
+  if (!config) {
+    (0, _warn.default)('config or path is required in .pageview()');
     return;
   }
 
-  var path = (0, _trim.default)(rawPath);
+  var _pageViewOptions = (0, _pageViewOptions2.default)(config, title),
+      page = _pageViewOptions.page,
+      extraFields = _pageViewOptions.extraFields;
 
-  if (path === '') {
-    (0, _warn.default)('path cannot be an empty string in .pageview()');
-    return;
-  }
-
-  var extraFields = {};
-
-  if (title) {
-    extraFields.title = title;
-  }
+  if (!page) return;
 
   if (typeof ga === 'function') {
     _gaCommand(trackerNames, 'send', _objectSpread({
-      hitType: 'pageview',
-      page: path
+      page: page,
+      hitType: 'pageview'
     }, extraFields));
 
     if (_debug) {
@@ -391,7 +386,7 @@ function pageview(rawPath, trackerNames, title) {
         extraLog = " and title: ".concat(title);
       }
 
-      (0, _log.default)("with path: ".concat(path).concat(extraLog));
+      (0, _log.default)("with path: ".concat(page).concat(extraLog));
     }
   }
 }
@@ -962,7 +957,7 @@ var _default = {
       args[_key] = arguments[_key];
     }
 
-    gaCalls.push(args.concat());
+    gaCalls.push([].concat(args));
   },
   resetCalls: function resetCalls() {
     gaCalls.length = 0;
@@ -1122,6 +1117,64 @@ module.exports = __WEBPACK_EXTERNAL_MODULE__11__;
 /***/ (function(module, exports) {
 
 module.exports = __WEBPACK_EXTERNAL_MODULE__12__;
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = pageViewOptions;
+
+var _warn = _interopRequireDefault(__webpack_require__(0));
+
+var _trim = _interopRequireDefault(__webpack_require__(1));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+/**
+ * Maps the first parameter of pageView handler depending on its format
+ * @param {Object|String} config Passed configuration for pageView.
+ * @return {object} Options object with page string and extraFields.
+*/
+function pageViewOptions(config, title) {
+  var options = {
+    page: '',
+    extraFields: {}
+  };
+
+  if (typeof config === 'string') {
+    options.page = (0, _trim.default)(config);
+  } else if (_typeof(config) === 'object') {
+    debugger;
+    if (!config.page) (0, _warn.default)('page cannot be an empty string in .pageview()');
+    options.page = (0, _trim.default)(config.page);
+    delete config.page;
+    options.extraFields = _objectSpread({}, config);
+  } else {
+    (0, _warn.default)('passed config is not a recognized format, use object or string instead.');
+  }
+
+  if (options.page === '') {
+    (0, _warn.default)('page cannot be an empty string in .pageview()');
+  }
+
+  if (title) {
+    options.extraFields.title = title;
+  }
+
+  return options;
+}
 
 /***/ })
 /******/ ]);

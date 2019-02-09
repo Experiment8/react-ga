@@ -35,6 +35,11 @@ import warn from './utils/console/warn';
 import log from './utils/console/log';
 import TestModeAPI from './utils/testModeAPI';
 import UnboundOutboundLink from './components/OutboundLink';
+/**
+ * Options mappers
+ */
+
+import pageViewOptions from './mappers/pageViewOptions';
 var _debug = false;
 var _titleCase = true;
 var _testMode = false;
@@ -198,34 +203,27 @@ export function send(fieldObject, trackerNames) {
 /**
  * pageview:
  * Basic GA pageview tracking
- * @param  {String} path - the current page page e.g. '/about'
- * @param {Array} trackerNames - (optional) a list of extra trackers to run the command on
- * @param {String} title - (optional) the page title e. g. 'My Website'
+ * @param  {String|Object} config - the current page page e.g. '/about'
+ * @param {Array} [trackerNames] - (optional) a list of extra trackers to run the command on
+ * @param {String} [title] - (optional) the page title e. g. 'My Website'
  */
 
-export function pageview(rawPath, trackerNames, title) {
-  if (!rawPath) {
-    warn('path is required in .pageview()');
+export function pageview(config, trackerNames, title) {
+  if (!config) {
+    warn('config or path is required in .pageview()');
     return;
   }
 
-  var path = trim(rawPath);
+  var _pageViewOptions = pageViewOptions(config, title),
+      page = _pageViewOptions.page,
+      extraFields = _pageViewOptions.extraFields;
 
-  if (path === '') {
-    warn('path cannot be an empty string in .pageview()');
-    return;
-  }
-
-  var extraFields = {};
-
-  if (title) {
-    extraFields.title = title;
-  }
+  if (!page) return;
 
   if (typeof ga === 'function') {
     _gaCommand(trackerNames, 'send', _objectSpread({
-      hitType: 'pageview',
-      page: path
+      page: page,
+      hitType: 'pageview'
     }, extraFields));
 
     if (_debug) {
@@ -236,7 +234,7 @@ export function pageview(rawPath, trackerNames, title) {
         extraLog = " and title: ".concat(title);
       }
 
-      log("with path: ".concat(path).concat(extraLog));
+      log("with path: ".concat(page).concat(extraLog));
     }
   }
 }
