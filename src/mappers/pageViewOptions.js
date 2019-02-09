@@ -7,27 +7,30 @@ import trim from '../utils/trim';
  * @return {object} Options object with page string and extraFields.
 */
 export default function pageViewOptions(config, title) {
-  const options = { page: '', extraFields: {} };
+  let options = { page: '', hitType: 'pageview' };
 
-  if (typeof config === 'string') {
-    options.page = trim(config);
-  } else if (typeof config === 'object') {
-    if (!config.page) warn('page cannot be an empty string in .pageview()');
-    options.extraFields = {
-      ...config,
-      page: trim(config.page)
-    };
-  } else {
-    warn('passed config is not a recognized format, use object or string instead.');
+  switch (typeof config) {
+    case 'string':
+      options.page = trim(config);
+      break;
+
+    case 'object':
+      if (!config.page) warn('page cannot be an empty string in .pageview()');
+      options = {
+        ...config,
+        hitType: options.hitType,
+        page: trim(config.page)
+      };
+      break;
+
+    default:
+      warn('passed config is not a recognized format, use object or string instead.');
+      break;
   }
 
-  if (options.page === '') {
-    warn('page cannot be an empty string in .pageview()');
-  }
+  if (options.page === '') warn('page cannot be an empty string in .pageview()');
 
-  if (title) {
-    options.extraFields.title = title;
-  }
+  if (title) options.title = title;
 
   return options;
 }

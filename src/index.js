@@ -184,24 +184,20 @@ export function pageview(config, trackerNames, title) {
     return;
   }
 
-  const { page, extraFields } = pageViewOptions(config, title);
+  const options = pageViewOptions(config, title);
 
-  if (!page) return;
+  if (!options.page) return;
 
   if (typeof ga === 'function') {
-    _gaCommand(trackerNames, 'send', {
-      page,
-      hitType: 'pageview',
-      ...extraFields
-    });
+    _gaCommand(trackerNames, 'send', options);
 
     if (_debug) {
-      log('called ga(\'send\', \'pageview\', path);');
+      log('called ga(\'send\', \'pageview\', page);');
       let extraLog = '';
       if (title) {
         extraLog = ` and title: ${title}`;
       }
-      log(`with path: ${page}${extraLog}`);
+      log(`with path: ${options.page}${extraLog}`);
     }
   }
 }
