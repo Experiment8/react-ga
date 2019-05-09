@@ -6,8 +6,8 @@ import trim from '../utils/trim';
  * @param {Object|String} config Passed configuration for pageView.
  * @return {object} Options object with page string and extraFields.
 */
-export default function pageViewOptions(config, title) {
-  let options = { page: '', hitType: 'pageview' };
+export default function _pageViewOptions(config, title) {
+  let options = { page: '' };
 
   switch (typeof config) {
     case 'string':
@@ -18,7 +18,6 @@ export default function pageViewOptions(config, title) {
       if (!config.page) warn('page cannot be an empty string in .pageview()');
       options = {
         ...config,
-        hitType: options.hitType,
         page: trim(config.page)
       };
       break;
@@ -27,8 +26,6 @@ export default function pageViewOptions(config, title) {
       warn('passed config is not a recognized format, use object or string instead.');
       break;
   }
-
-  if (options.page === '') warn('page cannot be an empty string in .pageview()');
 
   if (title) options.title = title;
 

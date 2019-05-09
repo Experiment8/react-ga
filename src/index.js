@@ -22,7 +22,7 @@ import UnboundOutboundLink from './components/OutboundLink';
 /**
  * Options mappers
  */
-import pageViewOptions from './mappers/pageViewOptions';
+import _pageViewOptions from './mappers/pageViewOptions';
 
 let _debug = false;
 let _titleCase = true;
@@ -179,17 +179,14 @@ export function send(fieldObject, trackerNames) {
  * @param {String} [title] - (optional) the page title e. g. 'My Website'
  */
 export function pageview(config, trackerNames, title) {
-  if (!config) {
-    warn('config or path is required in .pageview()');
-    return;
-  }
+  if (!config) warn('config or path is required in .pageview()');
 
-  const options = pageViewOptions(config, title);
+  const options = _pageViewOptions(config, title);
 
-  if (!options.page) return;
+  if (!options.page) warn('No page specified for pageview');
 
   if (typeof ga === 'function') {
-    _gaCommand(trackerNames, 'send', options);
+    _gaCommand(trackerNames, 'send', 'pageview', options);
 
     if (_debug) {
       log('called ga(\'send\', \'pageview\', page);');
